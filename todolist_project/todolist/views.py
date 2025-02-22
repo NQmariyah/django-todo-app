@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView
 
 from .models import Task
 from .forms import TaskForm
@@ -11,16 +12,11 @@ class TaskListView(ListView):
     context_object_name = 'tasks'
 
 
-def task_create(request):
-    if request.method == 'POST':
-        form = TaskForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('task_list')
-    else:
-        form = TaskForm()
-
-    return render(request, 'todolist/task_create.html', {'form': form})
+class TaskCreateView(CreateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'todolist/task_create.html'
+    success_url = reverse_lazy('task_list')
 
 
 def task_update(request, task_id):
