@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
+
 from .models import Task
 from .forms import TaskForm
 
 
-def task_list(request):
-    tasks = Task.objects.all()
-    return render(request, 'todolist/task_list.html', {'tasks': tasks})
+class TaskListView(ListView):
+    model = Task
+    template_name = 'todolist/task_list.html'
+    context_object_name = 'tasks'
 
 
 def task_create(request):
