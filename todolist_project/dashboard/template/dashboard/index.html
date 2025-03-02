@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Dashboard - Task Overview</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <canvas id="taskCompletionChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="taskPerUserChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("{% url 'task_data' %}")
+            .then(response => response.json())
+            .then(data => {
+                const ctx1 = document.getElementById('taskCompletionChart').getContext('2d');
+                new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Completed', 'Pending'],
+                        datasets: [{
+                            data: [data.completed_tasks, data.pending_tasks],
+                            backgroundColor: ['#36A2EB', '#FF6384']
+                        }]
+                    }
+                });
+
+                const ctx2 = document.getElementById('taskPerUserChart').getContext('2d');
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: data.tasks_per_user.map(item => item.user__username),
+                        datasets: [{
+                            label: 'Tasks Per User',
+                            data: data.tasks_per_user.map(item => item.task_count),
+                            backgroundColor: '#4CAF50'
+                        }]
+                    }
+                });
+            });
+    });
+</script>
+{% endblock %}

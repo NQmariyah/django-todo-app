@@ -57,7 +57,7 @@ ROOT_URLCONF = 'todolist_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'todolist/template'],
+        'DIRS': [BASE_DIR / 'todolist/template', BASE_DIR / 'dashboard/template'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
