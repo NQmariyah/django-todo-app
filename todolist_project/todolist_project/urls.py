@@ -8,4 +8,5 @@ urlpatterns = [
     path('tasks/', include('todolist.urls')),
     path("", DashboardView.as_view(), name="home"),  # Arahkan root ke Dashboard
     path("dashboard/", include("dashboard.urls")),
+    path("cth/", include('contoh.urls')),
 ]
