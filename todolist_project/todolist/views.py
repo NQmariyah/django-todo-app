@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import Task
 from .forms import TaskForm
 
-
+#ini file views
 class TaskListView(ListView):
     model = Task
     template_name = 'todolist/task_list.html'
