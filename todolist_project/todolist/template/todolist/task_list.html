@@ -18,33 +18,40 @@
         </tr>
     </thead>
     <tbody>
-        {% for task in tasks %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ task.title }}</td>
-            <td>
-                {% if task.completed %}
-                    <span class="badge bg-success">Selesai</span>
-                {% else %}
-                    <span class="badge bg-warning text-dark">Belum Selesai</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if task.user == request.user %}
+        <h3>Tugas Saya</h3>
+        <table class="table">
+        <tbody>
+            {% for task in my_tasks %}
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{% if task.completed %}Selesai{% else %}Belum Selesai{% endif %}</td>
+                <td>
                     <a href="{% url 'task_update' task.id %}" class="btn btn-sm btn-warning">Edit</a>
-                    <form action="{% url 'task_delete' task.id %}" method="POST" class="d-inline"
-                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus tugas ini?');">
+                    <form method="POST" action="{% url 'task_delete' task.id %}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
                     </form>
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4" class="text-center">Tidak ada tugas.</td>
-        </tr>
-        {% endfor %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center">Tidak ada tugas saya.</td></tr>
+            {% endfor %}
+        </tbody>
+        </table>
+
+        <h3 class="mt-5">Daftar Semua Tugas</h3>
+        <table class="table">
+        <tbody>
+            {% for task in other_tasks %}
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{% if task.completed %}Selesai{% else %}Belum Selesai{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-center">Tidak ada tugas orang lain.</td></tr>
+            {% endfor %}
+        </tbody>
+        </table>
     </tbody>
 </table>
 {% endblock %}

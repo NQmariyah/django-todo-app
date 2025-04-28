@@ -10,11 +10,14 @@ from .forms import TaskForm
 #ini file views
 class TaskListView(ListView):
     model = Task
-    template_name = 'todolist/task_list.html'
+    template_name = 'task_list.html'
     context_object_name = 'tasks'
 
-    def get_queryset(self):
-        return Task.objects.all()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['my_tasks'] = Task.objects.filter(user=self.request.user)
+        context['other_tasks'] = Task.objects.exclude(user=self.request.user)
+        return context
 
 
 class TaskCreateView(CreateView):
