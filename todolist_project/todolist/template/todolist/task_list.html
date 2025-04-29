@@ -34,8 +34,8 @@
     </tbody>
 </table>
 
-<form method="get" action="{% url 'task_list' %}" class="mb-3">
-    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Cari tugas orang lain...">
+<form id="search-form" method="get" action="{% url 'task_list' %}" class="mb-3">
+    <input type="text" name="q" id="search-input" value="{{ request.GET.q }}" class="form-control" placeholder="Cari tugas orang lain...">
 </form>
 <h3 class="mt-5">Daftar Semua Tugas</h3>
 <table class="table table-striped">
@@ -46,7 +46,7 @@
             <th>Aksi</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="other-tasks-body">
         {% for task in other_tasks %}
         <tr>
             <td>{{ task.title }}</td>
@@ -110,6 +110,38 @@
                     alert('Gagal mengambil detail tugas.');
                 });
         });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const otherTasksBody = document.getElementById('other-tasks-body');
+
+    let timeout = null;
+
+    searchInput.addEventListener('keyup', function() {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(function() {
+            const query = searchInput.value;
+            fetch(`/tasks/?q=${encodeURIComponent(query)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'  // biar server tau kalo ini AJAX
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network error');
+                }
+                return response.text();
+            })
+            .then(html => {
+                otherTasksBody.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error saat search:', error);
+            });
+        }, 300); // nunggu 300ms setelah user berhenti ngetik
     });
 });
 </script>

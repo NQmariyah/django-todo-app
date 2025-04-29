@@ -1,0 +1,11 @@
+{% for task in other_tasks %}
+<tr>
+    <td>{{ task.title }}</td>
+    <td>{% if task.completed %}Selesai{% else %}Belum Selesai{% endif %}</td>
+    <td>
+        <button class="btn btn-sm btn-info view-detail-btn" data-id="{{ task.id }}">Lihat Detail</button>
+    </td>
+</tr>
+{% empty %}
+<tr><td colspan="3" class="text-center">Tidak ada tugas orang lain.</td></tr>
+{% endfor %}

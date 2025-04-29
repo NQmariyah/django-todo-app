@@ -2,8 +2,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
@@ -30,6 +31,13 @@ class TaskListView(ListView):
 
         context['my_tasks'] = Task.objects.filter(user=self.request.user)
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            html = render_to_string('todolist/other_tasks.html', {'other_tasks': context['other_tasks']})
+            return HttpResponse(html)
+        else:
+            return super().render_to_response(context, **response_kwargs)
 
 
 class TaskCreateView(CreateView):
