@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -18,8 +19,16 @@ class TaskListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        search_query = self.request.GET.get('q', '')
+
+        if search_query:
+            context['other_tasks'] = Task.objects.filter(
+                Q(title__icontains=search_query) & ~Q(user=self.request.user)
+            )
+        else:
+            context['other_tasks'] = Task.objects.exclude(user=self.request.user)
+
         context['my_tasks'] = Task.objects.filter(user=self.request.user)
-        context['other_tasks'] = Task.objects.exclude(user=self.request.user)
         return context
 
 

@@ -34,6 +34,9 @@
     </tbody>
 </table>
 
+<form method="get" action="{% url 'task_list' %}" class="mb-3">
+    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Cari tugas orang lain...">
+</form>
 <h3 class="mt-5">Daftar Semua Tugas</h3>
 <table class="table table-striped">
     <thead class="table-dark">
