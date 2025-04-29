@@ -1,13 +1,16 @@
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from .models import Task
 from .forms import TaskForm
 
-#ini file views
+
 class TaskListView(ListView):
     model = Task
     template_name = 'task_list.html'
@@ -44,12 +47,27 @@ class TaskUpdateView(UpdateView):
 
 class TaskDeleteView(DeleteView):
     model = Task
-    template_name = 'todolist/task_delete.html'
-    success_url = reverse_lazy('task_list')
+    template_name = 'task_confirm_delete.html'  # Optional, jika menggunakan template konfirmasi
+    success_url = reverse_lazy('task_list')  # Redirect setelah berhasil dihapus
 
-    def test_func(self):
-        task = self.get_object()
-        return task.user == self.request.user
+    def delete(self, request, *args, **kwargs):
+        # Override untuk menangani permintaan AJAX dengan JsonResponse
+        if request.is_ajax():
+            task = self.get_object()
+            task.delete()
+            return JsonResponse({'message': 'Tugas berhasil dihapus'}, status=200)
+        return super().delete(request, *args, **kwargs)
+
+
+class TaskDetailJsonView(LoginRequiredMixin, View):
+    def get(self, request, pk, *args, **kwargs):
+        task = get_object_or_404(Task, pk=pk)
+        data = {
+            'title': task.title,
+            'completed': task.completed,
+            'creator': task.user.username,
+        }
+        return JsonResponse(data)
 
 
 class RegisterView(CreateView):

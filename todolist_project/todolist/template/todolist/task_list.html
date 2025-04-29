@@ -8,50 +8,108 @@
     <a href="{% url 'task_create' %}" class="btn btn-primary">Tambah Tugas</a>
 </div>
 
+<h3>Tugas Saya</h3>
 <table class="table table-striped">
     <thead class="table-dark">
         <tr>
-            <th>#</th>
             <th>Judul</th>
             <th>Status</th>
             <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        <h3>Tugas Saya</h3>
-        <table class="table">
-        <tbody>
-            {% for task in my_tasks %}
-            <tr>
-                <td>{{ task.title }}</td>
-                <td>{% if task.completed %}Selesai{% else %}Belum Selesai{% endif %}</td>
-                <td>
-                    <a href="{% url 'task_update' task.id %}" class="btn btn-sm btn-warning">Edit</a>
-                    <form method="POST" action="{% url 'task_delete' task.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="3" class="text-center">Tidak ada tugas saya.</td></tr>
-            {% endfor %}
-        </tbody>
-        </table>
-
-        <h3 class="mt-5">Daftar Semua Tugas</h3>
-        <table class="table">
-        <tbody>
-            {% for task in other_tasks %}
-            <tr>
-                <td>{{ task.title }}</td>
-                <td>{% if task.completed %}Selesai{% else %}Belum Selesai{% endif %}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="2" class="text-center">Tidak ada tugas orang lain.</td></tr>
-            {% endfor %}
-        </tbody>
-        </table>
+        {% for task in my_tasks %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{% if task.completed %}Selesai{% else %}Belum Selesai{% endif %}</td>
+            <td>
+                <a href="{% url 'task_update' task.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <button class="btn btn-sm btn-danger delete-btn" data-id="{{ task.id }}">Hapus</button>
+                <button class="btn btn-sm btn-info view-detail-btn" data-id="{{ task.id }}">Lihat Detail</button>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">Tidak ada tugas saya.</td></tr>
+        {% endfor %}
     </tbody>
 </table>
+
+<h3 class="mt-5">Daftar Semua Tugas</h3>
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Judul</th>
+            <th>Status</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in other_tasks %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{% if task.completed %}Selesai{% else %}Belum Selesai{% endif %}</td>
+            <td>
+                <button class="btn btn-sm btn-info view-detail-btn" data-id="{{ task.id }}">Lihat Detail</button>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">Tidak ada tugas orang lain.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!--Modal untuk menampilkan detail-->
+<div class="modal fade" id="taskDetailModal" tabindex="-1" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="taskDetailModalLabel">Detail Tugas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body">
+        <p id="detail-title"></p>
+        <p id="detail-status"></p>
+        <p id="detail-creator"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const detailButtons = document.querySelectorAll('.view-detail-btn');
+
+    detailButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-id');
+
+            fetch(`/tasks/${taskId}/detail/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data dari server:', data);
+
+                    document.getElementById('detail-title').innerText = 'Judul: ' + data.title;
+                    document.getElementById('detail-status').innerText = 'Status: ' + (data.completed ? 'Selesai' : 'Belum Selesai');
+                    document.getElementById('detail-creator').innerText = 'Pembuat: ' + data.creator;
+
+                    // Tampilkan modal
+                    const myModal = new bootstrap.Modal(document.getElementById('taskDetailModal'));
+                    myModal.show();
+                })
+                .catch(error => {
+                    console.error('Error saat mengambil detail tugas:', error);
+                    alert('Gagal mengambil detail tugas.');
+                });
+        });
+    });
+});
+</script>
 {% endblock %}
+
+
